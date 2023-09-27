@@ -31,7 +31,6 @@ get_part = "GET /assignment1?request="
 get_len = len(get_part)
 http_part = " HTTP/1.1 \r\n\r\n"
 http_len = len(http_part)
-strok = 'HTTP/1.1 200 OK\n\n'
 
 local = {}
 key_list = []
@@ -40,22 +39,22 @@ i = 0
 recv_message = c.recv(1024).decode()
 
 while recv_message:
-	if recv_message[0:get_len] == get_part and recv_message[-len(http_part):] == http_part:
-		sstring = recv_message[len(get_part):-len(http_part)]
-		if sstring in map:                  
-			a = strok + map[sstring] + "\r\n\r\n"
+	if recv_message[0:get_len] == get_part and recv_message[-http_len:] == http_part:
+		randstr = recv_message[len(get_part):-http_len]
+		if randstr in local:                  
+			a = 'HTTP/1.1 200 OK\n\n' + local[randstr] + "\r\n\r\n"
 			c.send(a.encode())
 		else:
-			cc.send(sstring.encode())
+			cc.send(randstr.encode())
 			a = cc.recv(1024).decode()
 			if i<3:
 				i += 1
 			else:
 				b = key_list.pop(0)
-				del map[b]
-			map[sstring] = a
-			key_list.append(sstring)
-			b = strok + a + "\r\n\r\n"
+				del local[b]
+			local[randstr] = a
+			key_list.append(randstr)
+			b = 'HTTP/1.1 200 OK\n\n' + a + "\r\n\r\n"
 			c.send(b.encode())
 	else:
 		a = '400 Bad Request\r\n\r\n'
