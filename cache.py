@@ -21,9 +21,7 @@ c, addr = s.accept()
 print ('Got connection from', addr)
 
 
-server_ip = str(input("Enter dstIP: "))
-cc = socket.socket()
-print(server_ip)
+cc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = 12345
 cc.connect((server_ip, server_port))
 
