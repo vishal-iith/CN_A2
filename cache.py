@@ -27,22 +27,23 @@ print(server_ip)
 port = 12345
 cc.connect((server_ip, server_port))
 
-strget = "GET /assignment1?request="
-http11 = " HTTP/1.1"
+get_part = "GET /assignment1?request="
+get_len = len(get_part)
+http_part = " HTTP/1.1 \r\n\r\n"
+http_len = len(http_part)
 strok = 'HTTP/1.1 200 OK\n\n'
-last = "\r\n\r\n"
 
 local = {}
-i = 0
 key_list = []
+i = 0
 
-rcmsg = c.recv(1024).decode()
+recv_message = c.recv(1024).decode()
 
-while rcmsg:
-	if rcmsg[:len(strget)] == strget and rcmsg[-len(http11 + last):] == http11 + last:
-		sstring = rcmsg[len(strget):-len(http11 + last)]
-		if sstring in map:                  #key
-			a = strok + map[sstring] + last
+while recv_message:
+	if recv_message[0:get_len] == get_part and recv_message[-len(http_part):] == http_part:
+		sstring = recv_message[len(get_part):-len(http_part)]
+		if sstring in map:                  
+			a = strok + map[sstring] + "\r\n\r\n"
 			c.send(a.encode())
 		else:
 			cc.send(sstring.encode())
@@ -54,12 +55,12 @@ while rcmsg:
 				del map[b]
 			map[sstring] = a
 			key_list.append(sstring)
-			b = strok + a + last
+			b = strok + a + "\r\n\r\n"
 			c.send(b.encode())
 	else:
 		a = '400 Bad Request\r\n\r\n'
 		c.send(a.encode())
 
-	rcmsg = c.recv(1024).decode()
+	recv_message = c.recv(1024).decode()
 
 
