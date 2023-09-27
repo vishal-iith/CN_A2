@@ -1,7 +1,13 @@
 import socket
 
+cache_ip = "10.0.1.2"
+client_ip = "10.0.1.1"
 server_ip = "10.0.1.3"
+
+
+client_port = 12345
 server_port = 12345
+cache_port = 12345
 
 
 # Defining key-value pairs stored in the server

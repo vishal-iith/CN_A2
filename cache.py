@@ -2,41 +2,64 @@ import socket
 cache_ip = "10.0.1.2"
 client_ip = "10.0.1.1"
 server_ip = "10.0.1.3"
-server_port = 12345  # Replace with the actual port number
 
 cache_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-port_client = 12345
-port_server = 12345
-port_cache = 12345
+client_port = 12345
+server_port = 12345
+cache_port = 12345
 
 
-cache_socket.bind((server_ip, server_port))  # Bind to any available interface and port 12345
-cache_socket.listen(5)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print ("Socket successfully created")
+client_port = 12346
+s.bind((client_ip, client_port))
+print ("socket binded to %s" %(client_port))
+s.listen(5)
+print ("socket is listening")
+c, addr = s.accept()
+print ('Got connection from', addr)
 
-while True:
-    print("Cache waiting for connections...")
-    client_socket, client_address = cache_socket.accept()
-    print(f"Connection from {client_address}")
 
-    key = client_socket.recv(1024).decode()
+server_ip = str(input("Enter dstIP: "))
+cc = socket.socket()
+print(server_ip)
+port = 12345
+cc.connect((server_ip, server_port))
 
-    if key:
-        # Check if key is in cache; if not, fetch from server
-        # Implement caching logic here
+strget = "GET /assignment1?request="
+http11 = " HTTP/1.1"
+strok = 'HTTP/1.1 200 OK\n\n'
+last = "\r\n\r\n"
 
-        # For now, just forward the GET request to the server
-        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.connect((server_ip, server_port))
-        server_socket.send(key.encode())
-        data = server_socket.recv(1024).decode()
-        server_socket.close()
+local = {}
+i = 0
+key_list = []
 
-        if data:
-            print(f"Cache responding to GET key '{key}' with value: {data}")
-            client_socket.send(data.encode())
-        else:
-            print(f"Key '{key}' not found in cache or server.")
-            client_socket.send("".encode())
+rcmsg = c.recv(1024).decode()
 
-    client_socket.close()
+while rcmsg:
+	if rcmsg[:len(strget)] == strget and rcmsg[-len(http11 + last):] == http11 + last:
+		sstring = rcmsg[len(strget):-len(http11 + last)]
+		if sstring in map:                  #key
+			a = strok + map[sstring] + last
+			c.send(a.encode())
+		else:
+			cc.send(sstring.encode())
+			a = cc.recv(1024).decode()
+			if i<3:
+				i += 1
+			else:
+				b = key_list.pop(0)
+				del map[b]
+			map[sstring] = a
+			key_list.append(sstring)
+			b = strok + a + last
+			c.send(b.encode())
+	else:
+		a = '400 Bad Request\r\n\r\n'
+		c.send(a.encode())
+
+	rcmsg = c.recv(1024).decode()
+
+
