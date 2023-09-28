@@ -1,43 +1,27 @@
 import socket
 
-cache_ip = "10.0.1.2"
-client_ip = "10.0.1.1"
-server_ip = "10.0.1.3"
+dst_ip = str(input("Enter Server IP: "))
 
+s = socket.socket()
+#S = socket.socket()
+print ("Successful creation of socket:")
+dport = 12345
+s.bind((dst_ip, dport))
+print ("socket binded to %s" %(dport))
 
-client_port = 12345
-server_port = 12345
-cache_port = 12345
+s.listen(5)
+print ("socket is listening")
+c, addr = s.accept()
+print ('Got connection from:', addr)
 
-
-# Defining key-value pairs stored in the server
-keyValueDict = {
-    "key1": "value1",
-    "key2": "value2",
-    "key3": "value3",
-    "key4": "value4",
-    "key5": "value5",
-    "key6": "value6"
+rcmsg = c.recv(1024).decode()
+map = {
+  'key1': 'val1','key2': 'val2','key3': 'val3','key4': 'val4', 'key5': 'val5','key6': 'val6'
 }
-
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print("Socket connecter successfully")
-server_socket.bind((server_ip, server_port))  
-print("Socket binded to %s " %(server_port))
-server_socket.listen(5)
-print("Socket is listening ")
-c, addr = server_socket.accept()
-print ('Got connection from: ', addr )
-recv_message = c.recv(1024).decode()
-
-
-while recv_message:
-
-    if recv_message in keyValueDict:
-        value = keyValueDict[recv_message]
-        c.send(value.encode())
-    else:
-        print("Erro 404: NOT FOUND")
-        c.send("".encode())
-
-    recv_message = c.recv(1024).decode()
+while rcmsg:
+	if rcmsg in map:
+		final_responce = map[rcmsg]
+	else:
+		final_responce = 'Error 404: Not found'
+	c.send(final_responce.encode())
+	rcmsg = c.recv(1024).decode()

@@ -1,63 +1,68 @@
 import socket
-cache_ip = "10.0.1.2"
-client_ip = "10.0.1.1"
-server_ip = "10.0.1.3"
 
-cache_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+dst1_ip = str(input('Enter dstTP: '))
+#s = socket.socket(())
+s = socket.socket()
+print ("Successful Creation of Socket:")
+dport1 = 12346
+#s.bind(dst1_ip, dport1)
+s.bind((dst1_ip, dport1))
 
-client_port = 12345
-server_port = 12345
-cache_port = 12345
-
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print ("Socket successfully created")
-client_port = 12346
-s.bind((client_ip, client_port))
-print ("socket binded to %s" %(client_port))
+print ("socket binded to %s" %(dport1))
 s.listen(5)
 print ("socket is listening")
 c, addr = s.accept()
-print ('Got connection from', addr)
+print ('Got connection from:', addr)
 
+#print('Server received '+recv_msg)
+serverIP = "10.0.1.3"
 
-cc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+dst_ip = str(input("Enter dstIP: "))
+server_connect = socket.socket()
+print(dst_ip)
 port = 12345
-cc.connect((server_ip, server_port))
 
-get_part = "GET /assignment1?request="
-get_len = len(get_part)
-http_part = " HTTP/1.1 \r\n\r\n"
-http_len = len(http_part)
+#s.connect((dst_ip,port))
+server_connect.connect((dst_ip, port))
 
-local = {}
-key_list = []
-i = 0
 
-recv_message = c.recv(1024).decode()
+stringget = "GET /assignment2?request="
+http11 = " HTTP/1.1"
+stringok = 'HTTP/1.1 200 OK\n\n'
+last_part = "\r\n\r\n"
+#declre responce_cache
+responce_cache = {}
+cache_limit = 0
+keylist = []
+recv_msg = c.recv(1024).decode()
 
-while recv_message:
-	if recv_message[0:get_len] == get_part and recv_message[-http_len:] == http_part:
-		randstr = recv_message[len(get_part):-http_len]
-		if randstr in local:                  
-			a = 'HTTP/1.1 200 OK\n\n' + local[randstr] + "\r\n\r\n"
-			c.send(a.encode())
+while recv_msg:
+    #if recv_msg[:len(stringget)] == stringget and recv_msg[len(http11 + last_part):] == http11 + last_part:
+	if recv_msg[:len(stringget)] == stringget and recv_msg[-len(http11 + last_part):] == http11 + last_part:
+        #secondstring = recv_msg[len(stringget):len(http11 + last_part)]
+		secondstring = recv_msg[len(stringget):-len(http11 + last_part)]
+		if secondstring in responce_cache:  
+            #required key value                
+			final_responce = stringok + responce_cache[secondstring] + last_part
+			c.send(final_responce.encode())
 		else:
-			cc.send(randstr.encode())
-			a = cc.recv(1024).decode()
-			if i<3:
-				i += 1
+            #s.send(secondstring.encode())
+			server_connect.send(secondstring.encode())
+
+			final_responce = server_connect.recv(1024).decode()
+            #final_responce = server_connect.recv(1024).decode()
+			if cache_limit<3:
+				cache_limit += 1
 			else:
-				b = key_list.pop(0)
-				del local[b]
-			local[randstr] = a
-			key_list.append(randstr)
-			b = 'HTTP/1.1 200 OK\n\n' + a + "\r\n\r\n"
-			c.send(b.encode())
+				b = keylist.pop(0)
+				del responce_cache[b]
+			responce_cache[secondstring] = final_responce
+			keylist.append(secondstring)
+
+			responce = stringok + final_responce + last_part
+			c.send(responce.encode())
 	else:
-		a = '400 Bad Request\r\n\r\n'
-		c.send(a.encode())
+		final_responce = '400 Bad Request\r\n\r\n'
+		c.send(final_responce.encode())
 
-	recv_message = c.recv(1024).decode()
-
-
+	recv_msg = c.recv(1024).decode()

@@ -1,20 +1,26 @@
 import socket
 
-cache_ip = "10.0.1.2"
-client_ip = "10.0.1.1"
-server_ip = "10.0.1.3"
+serverIP = "10.0.1.2"
 
+dst_ip = str(input("Enter dstIP: "))
+s = socket.socket()
+#S = socket.socket()
+print(dst_ip)
+port = 12346
 
-client_port = 12345
-server_port = 12345
-cache_port = 12345
-
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((cache_ip, cache_port))
-
+s.connect((dst_ip, port))
 while True:
-    key = str(input('Enter the get command: '))
-    key_url = key + '\r\n\r\n'
-    s.send(key_url.encode())
-    print(s.recv(1024).decode())
+	req = str(input("Enter the GET request: "))
+	finalreq = req + '\r\n\r\n'
+	s.send(finalreq.encode())
+    #S.send(finalreq.encode())
+	# print("decoded : ",s.recv(1024).decode())
+	recvstr = s.recv(1024).decode()
+	trd_part = recvstr.split(" ")
+	val_part = trd_part[2].split("\n")
+	val = val_part[2]
+	print(val)
+
+
+
+#print ('Client received '+s.recv(1024).decode())
