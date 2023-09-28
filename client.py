@@ -8,24 +8,29 @@ server_port = 12345
 cache_port = 12345
 client_port = 12345
 
-
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#S = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
 
 s.connect((cache_ip, cache_port))
 
 while True:
-	key = str(input('Enter the Key: '))
-	final_request = "GET /assignment2?request="+key+" HTTP/1.1\r\n\r\n"
-	#final request in form of "GET /assignment2?request=key1 HTTP/1.1"
-	s.send(final_request.encode())
-    
-	recv_msg = s.recv(1024).decode()
+    method = str(input("Enter PUT or GET : "))
 
-	print("Recieve: ",recv_msg)
-	
+    if method == "PUT":
+        key = str(input('Enter the Key: '))
+        value = str(input('Enter the Value: '))
+        final_request = "PUT /assignment2/" + key + "/" + value + " HTTP/1.1\r\n\r\n"
+    elif method == "GET":
+        key = str(input('Enter the Key: '))
+        final_request = "GET /assignment2?request=" + key + " HTTP/1.1\r\n\r\n"
+    else:
+        final_request = method
+        s.send(final_request.encode())
+        break
 
+    s.send(final_request.encode())
 
+    recv_msg = s.recv(1024).decode()
 
-#print ('Client received '+s.recv(1024).decode())
+    print("Receive: ", recv_msg)
+
+s.close()
