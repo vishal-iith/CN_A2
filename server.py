@@ -38,7 +38,7 @@ while True:
             respmsg = "HTTP/1.1 200 OK\r\n\r\n" + " " + key_dictionary[key]
             # server response in the form of "HTTP/1.1 200 OK <key>"
         else:
-            respmsg = 'HTTP/1.1 404 NOT FOUND\r\n\r\n'
+            respmsg = 'HTTP/1.1 404 NOT FOUND\r\n\r\n NOKEY'
             # server response in the form of "HTTP/1.1 404 NOT FOUND"
 
         c.send(respmsg.encode())
@@ -47,5 +47,7 @@ while True:
         key = keyp[1].split("/")[2]
         val = keyp[1].split("/")[3]
         key_dictionary[key] = val
+        respmsg = "HTTP/1.1 200 OK\r\n\r\n"
+        c.send(respmsg.encode())
 
     c.close()
