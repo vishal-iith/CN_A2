@@ -45,7 +45,11 @@ while True:
 
                 respmsg = ss.recv(1024).decode()
                 ss.close()
-                local_dictionary[key] = value
+                respcode = respmsg.split(" ")[1]
+                if respcode == "200":
+                    value=respmsg.split(" ")[3]
+                    local_dictionary[key] = value
+                
                 c.send(respmsg.encode())
 
                 # server response in the form of "HTTP/1.1 404 NOT FOUND"
