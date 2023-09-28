@@ -2,7 +2,7 @@ import socket
 
 dst1_ip = str(input('Enter dstTP: '))
 #s = socket.socket(())
-s = socket.socket()
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print ("Successful Creation of Socket:")
 dport1 = 12346
 #s.bind(dst1_ip, dport1)
@@ -18,32 +18,30 @@ print ('Got connection from:', addr)
 serverIP = "10.0.1.3"
 
 dst_ip = str(input("Enter dstIP: "))
-server_connect = socket.socket()
+server_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print(dst_ip)
 port = 12345
 
-#s.connect((dst_ip,port))
+#server_connect.connect(dst_ip, port)
 server_connect.connect((dst_ip, port))
 
-
-stringget = "GET /assignment2?request="
-http11 = " HTTP/1.1"
-stringok = 'HTTP/1.1 200 OK\n\n'
-last_part = "\r\n\r\n"
-#declre responce_cache
-responce_cache = {}
-cache_limit = 0
-keylist = []
 recv_msg = c.recv(1024).decode()
 
+#declre responce_cache
+responce_cache = {}
+keylist = []
+cache_limit = 0
+
+
+
 while recv_msg:
-    #if recv_msg[:len(stringget)] == stringget and recv_msg[len(http11 + last_part):] == http11 + last_part:
-	if recv_msg[:len(stringget)] == stringget and recv_msg[-len(http11 + last_part):] == http11 + last_part:
-        #secondstring = recv_msg[len(stringget):len(http11 + last_part)]
-		secondstring = recv_msg[len(stringget):-len(http11 + last_part)]
+    #if recv_msg[:25] == "GET /assignment2?request=" and recv_msg[13:] == " HTTP/1.1\r\n\r\n"
+	if recv_msg[:25] == "GET /assignment2?request=" and recv_msg[-13:] == " HTTP/1.1\r\n\r\n":
+        #secondstring = recv_msg[25:13]
+		secondstring = recv_msg[25:-13]
 		if secondstring in responce_cache:  
             #required key value                
-			final_responce = stringok + responce_cache[secondstring] + last_part
+			final_responce = "HTTP/1.1 200 OK\n\n" + responce_cache[secondstring] + "\r\n\r\n"
 			c.send(final_responce.encode())
 		else:
             #s.send(secondstring.encode())
@@ -54,12 +52,12 @@ while recv_msg:
 			if cache_limit<3:
 				cache_limit += 1
 			else:
-				b = keylist.pop(0)
-				del responce_cache[b]
+				delelem = keylist.pop(0)
+				del responce_cache[delelem]
 			responce_cache[secondstring] = final_responce
 			keylist.append(secondstring)
 
-			responce = stringok + final_responce + last_part
+			responce = "HTTP/1.1 200 OK\n\n" + final_responce + "\r\n\r\n"
 			c.send(responce.encode())
 	else:
 		final_responce = '400 Bad Request\r\n\r\n'
