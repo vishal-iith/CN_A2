@@ -9,7 +9,7 @@ cache_port = 12345
 client_port = 12345
 
 local_dictionary = {
-    'key1': 'val1', 'key2': 'val2', 'key3': 'val3', 'key4': 'val4', 'key5': 'val5', 'key6': 'val6'
+    'key1': 'val1', 'key2': 'val2', 'key3': 'val3'
 }
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
